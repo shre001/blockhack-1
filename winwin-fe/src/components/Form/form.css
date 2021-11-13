@@ -1,0 +1,12 @@
+@layer components {
+  .form {
+    @apply max-w-md w-full mx-auto mt-4 bg-white p-8 border border-gray-300;
+  }
+  .form-label {
+    @apply text-sm font-bold text-gray-600 block;
+  }
+  .form-input {
+    @apply w-full border-2 p-2 border-gray-200 focus:border-gray-300 rounded mt-1 text-gray-600 outline-none shadow-inner;
+  }
+
+}

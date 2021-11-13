@@ -1,60 +1,63 @@
-# Mediation Contract
+# Win-Win demo for Blockhack 2021
 
-This project has been created from IOG's [Plutus-Starter](https://github.com/input-output-hk/plutus-starter) template.
+## Setup
 
-## Video Walk-Through
+### Start Neo4j
 
-A video walk-through of this project is available on [YouTube](https://youtu.be/imGUFzvAZC4).
-
-## Setting up
-
-### Cabal+Nix build
-
-Set up your machine to build things with `Nix`, following the [Plutus README](https://github.com/input-output-hk/plutus/blob/master/README.adoc) (make sure to set up the binary cache!).
-
-To enter a development environment, simply open a terminal on the project's root and use `nix-shell` to get a bash shell:
-
-```
-$ nix-shell
+```shell
+docker run \
+    --publish=7474:7474 --publish=7687:7687 \
+    --env NEO4J_AUTH=neo4j/thyraedwards \
+    --ulimit=nofile=40000:40000 \
+    --env 'NEO4JLABS_PLUGINS=["apoc"]' \
+    neo4j
 ```
 
-Otherwise, you can use [direnv](https://github.com/direnv/direnv) which allows you to use your preferred shell (zsh!). Once installed, just run:
+### Start PAB
 
-```
-$ echo "use nix" > .envrc # Or manually add "use nix" in .envrc if you already have one
-$ direnv allow
-```
+In __winwin-pab__:
 
-and you'll have a working development environment for now and the future whenever you enter this directory.
-
-The build should not take too long if you correctly set up the binary cache. If it starts building GHC, stop and setup the binary cache.
-
-Afterwards, the command `cabal build` from the terminal should work (if `cabal` couldn't resolve the dependencies, run `cabal update` and then `cabal build`).
-
-
-## The Plutus Application Backend (PAB)
-
-1. Build the PAB executable:
-
-```
-cabal build plutus-starter-pab
+```shell
+cabal build plutus-starter-pab && cabal exec -- plutus-starter-pab
 ```
 
-2. Run the PAB binary:
+#### Create some wallets and get ids and pkh
 
-```
-cabal exec -- plutus-starter-pab
-````
+Run `demo.sh` and take note of the outputs for later use.
 
-This will then start up the server on port 9080.
+### Start Web Back-End
 
-3. Run the script:
+Install dependencies in __winwin-be__ via `npm i`.
 
-Running `run.sh` requires the presence of the `jq` tool.
-Executing the file creates four wallets (Party A, Party B, Mediator, and Platform).
-Party A and Party B pay into the smart contract.
-Finally, the Mediator hits the `grab` endpoint and thus, funds are dispersed to the Mediator and the Platform at the set ratio.
+Create a __.env__ file with these environment variables:
 
-```
-./run.sh
-```
+- NEO4J_PASSWORD (set it to thyraedwards if you used the docker command above)
+- PLATFORM_PUB (taken from the __demo.sh__ output)
+- Mailjet settings (MJ_KEY and MJ_SECRET)
+
+Then run `npm start`.
+
+### Start Web Front-End
+
+Install dependencies in __winwin-fe__ via `npm i`.
+
+Run `npm run start:local`.
+
+## Demo Prep (skipping some boring stuff)
+
+[Sign up a mediator](http://localhost:3000/signup/mediator-signup) using the wallet id and pkh from before.
+
+## Happy Path Demo Time
+
+[Sign up Party A](http://localhost:3000/signup/party-signUp) (e.g. Vitalik B) and go through the flow.
+
+Make sure to keep an eye on the log of the PAB when paying for the mediation.
+
+Open the invitation email for Party B in another browser, enter details, pay, be happy that it all worked.
+
+### Happy, but out of scope
+
+Not in scope for the demo is the grabbing of the funds.
+Testing of the proper functionality (incl. who can call the endpoints at what times) can be accomplished through scripts utilizing curl or other http clients. See the __run.sh__ in the __winwin-pab__ directory.
+
+The contract pays out 10% to the platform and 90% to the mediator. It is largely based on the [Plutus Capstone](https://github.com/Loxe-Inc/mediation-contract), which unfortunately had a bug that I nor the mentors did not catch in time.

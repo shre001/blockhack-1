@@ -1,0 +1,14 @@
+@layer components {
+  button {
+    @apply w-9/12 border rounded py-2 text-center
+  }
+  button.button-create {
+    @apply text-white bg-green-500 hover:bg-green-600 text-center;
+  }
+  button.button-deny {
+    @apply text-white bg-red-500 hover:bg-red-600;
+  }
+  button.button-disabled {
+    @apply bg-gray-500;
+  }
+} 
